@@ -116,7 +116,7 @@ def init_net(net, init_type='normal', init_gain=0.02, gpu_ids=[]):
     return net
 
 
-def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[]):
+def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, gpu_ids=[0]):
     """Create a generator
 
     Parameters:
@@ -159,7 +159,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
     return init_net(net, init_type, init_gain, gpu_ids)
 
 
-def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal', init_gain=0.02, gpu_ids=[]):
+def define_D(input_nc, ndf, netD, n_layers_D=3, norm='batch', init_type='normal', init_gain=0.02, gpu_ids=[0]):
     """Create a discriminator
 
     Parameters:
@@ -613,3 +613,16 @@ class PixelDiscriminator(nn.Module):
     def forward(self, input):
         """Standard forward."""
         return self.net(input)
+
+
+if __name__ == '__main__':
+    g_net = define_G(3, 3, 64, "unet_128")
+    d_net = define_D(6, 64, "basic")
+    out1 = g_net(torch.randn(3, 3, 128, 128))
+    print(out1.size())
+    out2 = d_net(torch.randn(3, 6, 128, 128))
+    print(out2.size())
+    loss = GANLoss("lsgan")
+    loss.cuda()
+    print(loss(out2, True).size())
+
